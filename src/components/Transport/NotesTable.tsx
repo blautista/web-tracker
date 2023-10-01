@@ -2,11 +2,12 @@ import styled from "@emotion/styled";
 import * as Tone from "tone";
 import { NoteCell } from "./NoteCell.tsx";
 import { IndexCell } from "./IndexCell.tsx";
-import { TableCell } from "./StyledTableCell.tsx";
 import { useAppSelector } from "../../store/store.ts";
 import TransportActions from "./TransportActions.tsx";
 import { selectTransportIndexPosition } from "./transportSlice.ts";
 import { Stack } from "@mui/joy";
+import { Notes, NoteTime, selectInstrumentIds } from "./instrumentsSlice.ts";
+import { memo } from "react";
 
 const TableContainer = styled.div`
   display: flex;
@@ -21,39 +22,29 @@ const TableRow = styled.div`
   height: 20px;
 `;
 
-function getHexValues(until: number) {
+function numToHex(n: number) {
+  const hex = n.toString(16);
+  return hex.padStart(2, "0");
+}
+
+function getTransportValues(until: number) {
   return Array(until)
     .fill(0)
     .map((_, i) => {
-      const hex = i.toString(16);
-      return hex.padStart(2, "0");
+      return indexToTransportPosition(i);
     });
 }
 
-type Note = { time: string; note: string };
-type Notes = Note[];
-
-function barsBeatsSixteenthsToIndex(str: string): number {
-  const [bar, beats, sixteenths] = str.split(":");
-  let sum = Number(bar) * 4 * 4;
-
-  if (beats) {
-    sum += parseInt(beats) * 4;
-  }
-
-  if (sixteenths) {
-    sum += parseInt(sixteenths);
-  }
-
-  return sum - 1;
+function indexToTransportPosition(i: number): NoteTime {
+  return `${Math.floor(i / 16)}:${Math.floor(i / 4) % 4}:${i % 4}`;
 }
 
 const pianoNotes: Notes = [
   { time: "0:0:2", note: "C4" },
-  { time: "0:1", note: "C4" },
+  { time: "0:1:0", note: "C4" },
   { time: "0:1:3", note: "D4" },
   { time: "0:2:2", note: "C4" },
-  { time: "0:3", note: "C4" },
+  { time: "0:3:0", note: "C4" },
   { time: "0:3:2", note: "G3" },
 ];
 
@@ -73,29 +64,64 @@ pianoPart.loop = 2;
 Tone.Transport.bpm.value = 120;
 pianoPart.loopEnd = "1m";
 
-const notes = pianoNotes.map((note) => ({ i: barsBeatsSixteenthsToIndex(note.time), ...note }));
-const indexValues = getHexValues(100);
+const InstrumentRow = memo(function InstrumentRow({
+  instrumentId,
+  index,
+}: {
+  instrumentId: string;
+  index: number;
+}) {
+  const pos = indexToTransportPosition(index);
 
-let a = performance.now();
+  return (
+    <>
+      <NoteCell instrumentId={instrumentId} noteId={pos} />
+    </>
+  );
+});
+
+console.log(getTransportValues(100));
+
+const TransportRow = memo(function TransportRow({
+  index,
+  isCurrentBeat,
+}: {
+  index: number;
+  isCurrentBeat: boolean;
+}) {
+  const instrumentIds = useAppSelector((state) => selectInstrumentIds(state.instruments));
+
+  const style = isCurrentBeat ? { background: "red" } : {};
+  const hex = numToHex(index);
+
+  return (
+    <TableRow style={style}>
+      <IndexCell>{hex.toUpperCase()}</IndexCell>
+      {instrumentIds.map((instrumentId) => (
+        <InstrumentRow key={instrumentId} instrumentId={instrumentId} index={index} />
+      ))}
+    </TableRow>
+  );
+});
+
+const indexValues = Array(64)
+  .fill(0)
+  .map((_, i) => i);
 
 function NotesTable() {
-  const currentBeat = useAppSelector((state) => selectTransportIndexPosition(state));
-  console.log(performance.now() - a);
-  a = performance.now();
+  const currentTransportIndex = useAppSelector((state) => selectTransportIndexPosition(state));
+
   return (
     <Stack>
       <TransportActions />
       <TableContainer>
-        {indexValues.map((e, i) => {
-          const relatedNote = notes.find((note) => note.i === i);
-
-          const style = currentBeat === i ? { background: "red" } : {};
+        {indexValues.map((_, index) => {
           return (
-            <TableRow style={style} key={i}>
-              <IndexCell>{e.toUpperCase()}</IndexCell>
-              <NoteCell>{relatedNote ? relatedNote.note.split("").join("-") : "---"}</NoteCell>
-              <TableCell>---</TableCell>
-            </TableRow>
+            <TransportRow
+              index={index}
+              key={index}
+              isCurrentBeat={index === currentTransportIndex}
+            />
           );
         })}
       </TableContainer>

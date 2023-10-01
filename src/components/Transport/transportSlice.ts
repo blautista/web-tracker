@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createEntityAdapter, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
 import * as Tone from "tone";
 import store, { RootState } from "../../store/store.ts";
 import { PlaybackState } from "tone";
@@ -67,6 +67,10 @@ export function selectTransportPlaybackState(state: RootState) {
   return state.transport.state;
 }
 
+export function selectTransportPosition(state: RootState) {
+  return state.transport.position;
+}
+
 export function selectTransportIndexPosition(state: RootState) {
   return barsBeatsSixteenthsToIndex(state.transport.position);
 }
@@ -83,7 +87,11 @@ Tone.Transport.on("pause", handleEvent);
 
 Tone.Transport.scheduleRepeat(
   () => {
-    store.dispatch(setTransportPosition(Tone.Transport.position as string));
+    const transportPosition = Tone.Time(
+      Tone.Time(Tone.Transport.position).quantize("16n"),
+    ).toBarsBeatsSixteenths();
+
+    store.dispatch(setTransportPosition(transportPosition));
   },
   "16n",
   0,
