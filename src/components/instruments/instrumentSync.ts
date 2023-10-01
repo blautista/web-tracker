@@ -42,8 +42,8 @@ export function initInstruments(instruments: Instrument[]) {
 
     const synth = typeSynthFactory[type]();
 
-    const part = new Tone.Part((time, chord) => {
-      synth.triggerAttackRelease(chord.note, "8n", time);
+    const part = new Tone.Part((time, note) => {
+      synth.triggerAttackRelease(note.note, note.duration ?? "8n", time);
     }, Object.values(notes.entities)).start(0);
 
     part.loop = 2;

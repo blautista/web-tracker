@@ -6,10 +6,11 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 import type { RootState } from "../../store/store.ts";
+import * as Tone from "tone";
 
 export type NoteTime = `${number}:${number}:${number}`;
 export type InstrumentType = "square" | "triangle" | "sawtooth";
-export type Note = { time: NoteTime; note: string; duration?: string };
+export type Note = { time: NoteTime; note: string; duration?: Tone.Unit.Time };
 export type Notes = Note[];
 
 const instrumentsAdapter = createEntityAdapter<Instrument>();
