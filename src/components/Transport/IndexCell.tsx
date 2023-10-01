@@ -1,16 +1,31 @@
 import React from "react";
 import { TableCell } from "./StyledTableCell.tsx";
 import styled from "@emotion/styled";
+import { Typography } from "@mui/joy";
 
 const StyledIndexCell = styled(TableCell)({
   letterSpacing: "initial",
-  width: 20,
-  paddingLeft: 16,
-  paddingRight: 16,
+  width: 30,
+  padding: 0,
   fontWeight: "bold",
-  borderRight: "1px solid lightgray",
+  borderRight: "1px solid black",
 });
 
-export const IndexCell = React.memo(function IndexCell({ children }: { children: string }) {
-  return <StyledIndexCell>{children}</StyledIndexCell>;
+function numToHex(n: number) {
+  const hex = n.toString(16);
+  return hex.padStart(2, "0");
+}
+
+type IndexCellProps = {
+  index: number;
+};
+
+export const IndexCell = React.memo(function IndexCell({ index }: IndexCellProps) {
+  const hex = numToHex(index);
+
+  return (
+    <StyledIndexCell>
+      <Typography level="body-xs">{hex.toUpperCase()}</Typography>
+    </StyledIndexCell>
+  );
 });

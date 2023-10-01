@@ -6,7 +6,4 @@ export const TableCell = styled.div`
   align-items: center;
   justify-content: center;
   padding: 4px;
-  background-color: #242424;
-  font-family: monospace;
-  letter-spacing: 4px;
 `;

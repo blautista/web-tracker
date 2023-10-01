@@ -72,7 +72,7 @@ export function selectTransportPosition(state: RootState) {
 }
 
 export function selectTransportIndexPosition(state: RootState) {
-  return barsBeatsSixteenthsToIndex(state.transport.position);
+  return barsBeatsSixteenthsToIndex(state.transport.position) + 1;
 }
 
 export default transportSlice;
@@ -85,13 +85,15 @@ Tone.Transport.on("start", handleEvent);
 Tone.Transport.on("stop", handleEvent);
 Tone.Transport.on("pause", handleEvent);
 
-Tone.Transport.scheduleRepeat(
-  () => {
-    const transportPosition = Tone.Time(
-      Tone.Time(Tone.Transport.position).quantize("16n"),
-    ).toBarsBeatsSixteenths();
+function getQuantizedTransportPosition(time: number) {
+  const offset = Tone.Time().toSeconds() - time;
+  const tPos = Tone.TransportTime().toSeconds() - offset;
+  return Tone.Time(tPos).toBarsBeatsSixteenths();
+}
 
-    store.dispatch(setTransportPosition(transportPosition));
+Tone.Transport.scheduleRepeat(
+  (time) => {
+    store.dispatch(setTransportPosition(getQuantizedTransportPosition(time)));
   },
   "16n",
   0,
