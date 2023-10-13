@@ -5,8 +5,9 @@ import {
   nanoid,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import type { RootState } from "../../store/store.ts";
+import type { AppDispatch, RootState } from "../../store/store.ts";
 import * as Tone from "tone";
+import { toneSync } from "./instrumentSync.ts";
 
 export type NoteTime = `${number}:${number}:${number}`;
 export type InstrumentType = "square" | "triangle" | "sawtooth";
@@ -20,6 +21,10 @@ export type Instrument = {
   id: string;
   name: string;
   type: InstrumentType;
+  playback: {
+    volume: number;
+    mute: boolean;
+  };
   notes: EntityState<Note, NoteTime>;
 };
 
@@ -36,6 +41,10 @@ const instrumentsSlice = createSlice({
         instrumentsAdapter.addOne(state, {
           name: `Instrument ${state.ids.length}`,
           ...action.payload,
+          playback: {
+            volume: 0,
+            mute: false,
+          },
           notes: notesAdapter.getInitialState(),
         });
       },
@@ -51,14 +60,57 @@ const instrumentsSlice = createSlice({
         }
       },
     ),
+
+    muteInstrument: b.asyncThunk(
+      ({ instrumentId }: { instrumentId: string }) => {
+        toneSync.setInstrumentVolume(instrumentId, -200);
+        return instrumentId;
+      },
+      {
+        fulfilled(state, action) {
+          const instrument = state.entities[action.payload];
+
+          if (instrument) {
+            instrument.playback.mute = !instrument.playback.mute;
+          }
+        },
+      },
+    ),
+
+    unmuteInstrument: b.asyncThunk(
+      ({ instrumentId }: { instrumentId: string }, { getState }) => {
+        const volume = selectInstrumentVolume(getState() as RootState, instrumentId);
+        toneSync.setInstrumentVolume(instrumentId, volume);
+        return instrumentId;
+      },
+      {
+        fulfilled(state, action) {
+          const instrument = state.entities[action.payload];
+
+          if (instrument) {
+            instrument.playback.mute = !instrument.playback.mute;
+          }
+        },
+      },
+    ),
   }),
 });
 
-export const { addInstrument, addNotesToInstrument } = instrumentsSlice.actions;
+export const { addInstrument, addNotesToInstrument, unmuteInstrument, muteInstrument } =
+  instrumentsSlice.actions;
+
 export const {
   selectIds: selectInstrumentIds,
   selectById: selectInstrumentById,
   selectAll: selectAllInstruments,
 } = instrumentsAdapter.getSelectors<RootState>((state) => state.instruments);
+
+export function selectInstrumentVolume(state: RootState, instrumentId: string) {
+  return selectInstrumentPlayback(state, instrumentId).volume;
+}
+
+export function selectInstrumentPlayback(state: RootState, instrumentId: string) {
+  return selectInstrumentById(state, instrumentId).playback;
+}
 
 export default instrumentsSlice;

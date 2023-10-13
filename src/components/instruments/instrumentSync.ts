@@ -32,13 +32,21 @@ const typeSynthFactory: Record<InstrumentType, () => Synth> = {
   },
 };
 
-const instrumentMap = new Map<string, { synth: Synth; part: Tone.Part<Note> }>();
+const instrumentMap = new Map<
+  string,
+  { volume?: Tone.Volume; synth: Synth; part: Tone.Part<Note> }
+>();
 
 Tone.Transport.bpm.value = 120;
 
 export function initInstruments(instruments: Instrument[]) {
   for (const instrument of instruments) {
-    const { type, id, notes } = instrument;
+    const {
+      type,
+      id,
+      notes,
+      playback: { mute },
+    } = instrument;
 
     const synth = typeSynthFactory[type]();
 
@@ -52,3 +60,15 @@ export function initInstruments(instruments: Instrument[]) {
     instrumentMap.set(id, { synth, part });
   }
 }
+
+export function setInstrumentVolume(instrumentId: string, db: number) {
+  const instrument = instrumentMap.get(instrumentId);
+
+  if (instrument) {
+    instrument.synth.volume.value = db;
+  }
+}
+
+export const toneSync = {
+  setInstrumentVolume,
+};

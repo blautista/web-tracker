@@ -37,12 +37,12 @@ store.dispatch(
   addNotesToInstrument({
     instrumentId: store.getState().instruments.ids[1],
     notes: [
-      { time: "0:0:0", note: "C3", duration: "4n" },
-      { time: "0:0:3", note: "C3" },
-      { time: "0:1:2", note: "C3" },
-      { time: "0:2:0", note: "B3" },
-      { time: "0:3:0", note: "E3" },
-      { time: "0:3:4", note: "C1" },
+      { time: "0:0:0", note: "C3", duration: "32n" },
+      { time: "0:0:3", note: "C3", duration: "32n" },
+      { time: "0:1:2", note: "C3", duration: "32n" },
+      { time: "0:2:0", note: "B3", duration: "32n" },
+      { time: "0:3:0", note: "E3", duration: "32n" },
+      { time: "0:3:4", note: "C1", duration: "32n" },
     ],
   }),
 );
