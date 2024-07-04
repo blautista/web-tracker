@@ -1,10 +1,10 @@
-import { useAppSelector } from "../../store/store.ts";
 import TransportActions from "./TransportActions.tsx";
-import { selectTransportIndexPosition } from "./transportSlice.ts";
+import { selectTransportIndexPosition } from "./slice/transportSlice.ts";
 import { Stack, styled } from "@mui/joy";
 import { TransportRow } from "./TransportRow.tsx";
 import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
+import { useAppSelector } from "../../store/hooks.ts";
 
 const TableContainer = styled(Stack)(({ theme }) => ({
   color: theme.palette.text.primary,

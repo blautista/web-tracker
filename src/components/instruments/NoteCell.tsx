@@ -1,8 +1,8 @@
 import React from "react";
 import { TableCell } from "../Transport/StyledTableCell.tsx";
-import { useAppSelector } from "../../store/store.ts";
 import { NoteTime } from "./instrumentsSlice.ts";
 import { Typography } from "@mui/joy";
+import { useAppSelector } from "../../store/hooks.ts";
 
 type NoteCellProps = { instrumentId: string; noteId: NoteTime };
 

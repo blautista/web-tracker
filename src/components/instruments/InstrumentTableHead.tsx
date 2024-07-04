@@ -1,12 +1,7 @@
 import { Button, Stack, Typography } from "@mui/joy";
 import { memo } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/store.ts";
-import {
-  muteInstrument,
-  selectInstrumentById,
-  toggleInstrumentMute,
-  unmuteInstrument,
-} from "./instrumentsSlice.ts";
+import { muteInstrument, selectInstrumentById, unmuteInstrument } from "./instrumentsSlice.ts";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 
 type InstrumentTableHeadProps = {
   instrumentId: string;
@@ -21,9 +16,9 @@ const InstrumentTableHead = memo(function InstrumentTableHead({
 
   function handleMuteClick() {
     if (muted) {
-      dispatch(unmuteInstrument({ instrumentId }));
+      dispatch(unmuteInstrument(instrumentId));
     } else {
-      dispatch(muteInstrument({ instrumentId }));
+      dispatch(muteInstrument(instrumentId));
     }
   }
 

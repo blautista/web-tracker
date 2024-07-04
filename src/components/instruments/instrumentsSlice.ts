@@ -8,9 +8,10 @@ import {
 import type { AppDispatch, RootState } from "../../store/store.ts";
 import * as Tone from "tone";
 import { toneSync } from "./instrumentSync.ts";
+import { InstrumentType } from "./synthFactory.ts";
 
 export type NoteTime = `${number}:${number}:${number}`;
-export type InstrumentType = "square" | "triangle" | "sawtooth";
+
 export type Note = { time: NoteTime; note: string; duration?: Tone.Unit.Time };
 export type Notes = Note[];
 
@@ -32,7 +33,7 @@ const instrumentsSlice = createSlice({
   name: "instruments",
   initialState: instrumentsAdapter.getInitialState(),
   reducers: (b) => ({
-    addInstrument: b.preparedReducer(
+    instrumentAdded: b.preparedReducer(
       (obj: { type: InstrumentType; name?: string }) => {
         const id = nanoid();
         return { payload: { ...obj, id } };
@@ -50,7 +51,7 @@ const instrumentsSlice = createSlice({
       },
     ),
 
-    addNotesToInstrument: b.reducer(
+    instrumentNotesAdded: b.reducer(
       (state, action: PayloadAction<{ instrumentId: string; notes: Notes }>) => {
         const { instrumentId: id, notes } = action.payload;
         const instrument = state.entities[id];
@@ -61,43 +62,39 @@ const instrumentsSlice = createSlice({
       },
     ),
 
-    muteInstrument: b.asyncThunk(
-      ({ instrumentId }: { instrumentId: string }) => {
-        toneSync.setInstrumentVolume(instrumentId, -200);
-        return instrumentId;
-      },
-      {
-        fulfilled(state, action) {
-          const instrument = state.entities[action.payload];
+    instrumentMuteChange: b.reducer(
+      (state, action: PayloadAction<{ instrumentId: string; muted: boolean }>) => {
+        const { instrumentId, muted } = action.payload;
+        const instrument = state.entities[instrumentId];
 
-          if (instrument) {
-            instrument.playback.mute = !instrument.playback.mute;
-          }
-        },
-      },
-    ),
-
-    unmuteInstrument: b.asyncThunk(
-      ({ instrumentId }: { instrumentId: string }, { getState }) => {
-        const volume = selectInstrumentVolume(getState() as RootState, instrumentId);
-        toneSync.setInstrumentVolume(instrumentId, volume);
-        return instrumentId;
-      },
-      {
-        fulfilled(state, action) {
-          const instrument = state.entities[action.payload];
-
-          if (instrument) {
-            instrument.playback.mute = !instrument.playback.mute;
-          }
-        },
+        if (instrument) {
+          instrument.playback.mute = muted;
+        }
       },
     ),
   }),
 });
 
-export const { addInstrument, addNotesToInstrument, unmuteInstrument, muteInstrument } =
-  instrumentsSlice.actions;
+const { instrumentMuteChange } = instrumentsSlice.actions;
+
+export function unmuteInstrument(instrumentId: string) {
+  return (dispatch: AppDispatch, getState: () => RootState) => {
+    const volume = selectInstrumentVolume(getState(), instrumentId);
+    toneSync.setInstrumentVolume(instrumentId, volume);
+
+    dispatch(instrumentMuteChange({ instrumentId, muted: false }));
+  };
+}
+
+export function muteInstrument(instrumentId: string) {
+  return (dispatch: AppDispatch) => {
+    toneSync.muteInstrument(instrumentId);
+
+    dispatch(instrumentMuteChange({ instrumentId, muted: true }));
+  };
+}
+
+export const { instrumentAdded, instrumentNotesAdded } = instrumentsSlice.actions;
 
 export const {
   selectIds: selectInstrumentIds,

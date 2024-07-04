@@ -1,17 +1,20 @@
 import React, { memo } from "react";
-import { IconButton, Stack } from "@mui/joy";
+import { IconButton, Stack, Typography } from "@mui/joy";
 import { CiPause1, CiPlay1, CiStop1 } from "react-icons/ci";
-import { useAppDispatch, useAppSelector } from "../../store/store.ts";
 import {
   pauseTransport,
+  selectBpm,
   selectTransportPlaybackState,
   startTransport,
   stopTransport,
-} from "./transportSlice.ts";
+} from "./slice/transportSlice.ts";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 
 const TransportActions = memo(function TransportActions() {
-  const transportState = useAppSelector(selectTransportPlaybackState);
   const dispatch = useAppDispatch();
+
+  const transportState = useAppSelector(selectTransportPlaybackState);
+  const bpm = useAppSelector(selectBpm);
 
   return (
     <Stack direction="row">
@@ -45,6 +48,7 @@ const TransportActions = memo(function TransportActions() {
           style={{ color: transportState === "stopped" ? "lightgray" : "red", fontSize: 20 }}
         />
       </IconButton>
+      <Typography level="body-lg">{bpm} bpm</Typography>
     </Stack>
   );
 });

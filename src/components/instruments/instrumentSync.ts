@@ -1,67 +1,44 @@
-import { Instrument, InstrumentType, Note } from "./instrumentsSlice.ts";
+import { Instrument, Note } from "./instrumentsSlice.ts";
 import * as Tone from "tone";
-
-type Synth = Tone.Synth | Tone.FMSynth | Tone.AMSynth;
-
-const typeSynthFactory: Record<InstrumentType, () => Synth> = {
-  square() {
-    return new Tone.Synth({
-      volume: -4,
-      oscillator: {
-        type: "square",
-      },
-    }).toDestination();
-  },
-
-  sawtooth() {
-    return new Tone.Synth({
-      volume: -8,
-      oscillator: {
-        partials: [1, 2, 1],
-      },
-    }).toDestination();
-  },
-
-  triangle() {
-    return new Tone.Synth({
-      volume: -4,
-      oscillator: {
-        type: "triangle",
-      },
-    }).toDestination();
-  },
-};
+import { AnySynth, createSynth } from "./synthFactory.ts";
 
 const instrumentMap = new Map<
   string,
-  { volume?: Tone.Volume; synth: Synth; part: Tone.Part<Note> }
+  { volume?: Tone.Volume; synth: AnySynth; part: Tone.Part<Note> }
 >();
 
-Tone.Transport.bpm.value = 120;
+function initInstrument(instrument: Instrument) {
+  const {
+    type,
+    id,
+    notes,
+    playback: { mute, volume },
+  } = instrument;
 
-export function initInstruments(instruments: Instrument[]) {
-  for (const instrument of instruments) {
-    const {
-      type,
-      id,
-      notes,
-      playback: { mute },
-    } = instrument;
+  const synth = createSynth(type);
 
-    const synth = typeSynthFactory[type]();
-
-    const part = new Tone.Part((time, note) => {
-      synth.triggerAttackRelease(note.note, note.duration ?? "8n", time);
-    }, Object.values(notes.entities)).start(0);
-
-    part.loop = 2;
-    part.loopEnd = "1m";
-
-    instrumentMap.set(id, { synth, part });
+  if (mute) {
+    muteInstrument(id);
+  } else {
+    setInstrumentVolume(id, volume);
   }
+
+  const part = new Tone.Part((time, note) => {
+    synth.triggerAttackRelease(note.note, note.duration ?? "8n", time);
+  }, Object.values(notes.entities)).start(0);
+
+  instrumentMap.set(id, { synth, part });
 }
 
-export function setInstrumentVolume(instrumentId: string, db: number) {
+/**
+ * Initializes all instruments with their respective parts within the transport.
+ * @param instruments The instruments to use
+ */
+function initInstruments(instruments: Instrument[]) {
+  instruments.forEach(initInstrument);
+}
+
+function setInstrumentVolume(instrumentId: string, db: number) {
   const instrument = instrumentMap.get(instrumentId);
 
   if (instrument) {
@@ -69,6 +46,8 @@ export function setInstrumentVolume(instrumentId: string, db: number) {
   }
 }
 
-export const toneSync = {
-  setInstrumentVolume,
-};
+function muteInstrument(instrumentId: string) {
+  setInstrumentVolume(instrumentId, -100);
+}
+
+export const toneSync = { initInstruments, setInstrumentVolume, muteInstrument };

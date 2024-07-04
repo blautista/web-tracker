@@ -1,12 +1,13 @@
-import transportSlice from "../components/Transport/transportSlice.ts";
 import { configureStore } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import instrumentsSlice, {
-  addInstrument,
-  addNotesToInstrument,
+  instrumentAdded,
+  instrumentNotesAdded,
   selectAllInstruments,
 } from "../components/instruments/instrumentsSlice.ts";
-import { initInstruments } from "../components/instruments/instrumentSync.ts";
+import { toneSync } from "../components/instruments/instrumentSync.ts";
+import { syncTransport } from "../components/Transport/slice/sync.ts";
+import transportSlice, { selectBpm } from "../components/Transport/slice/transportSlice.ts";
+import * as Tone from "tone";
 
 const store = configureStore({
   reducer: {
@@ -15,10 +16,10 @@ const store = configureStore({
   },
 });
 
-store.dispatch(addInstrument({ type: "square", name: "Square!" }));
+store.dispatch(instrumentAdded({ type: "square", name: "Square!" }));
 
 store.dispatch(
-  addNotesToInstrument({
+  instrumentNotesAdded({
     instrumentId: store.getState().instruments.ids[0],
     notes: [
       { time: "0:0:2", note: "C4" },
@@ -31,10 +32,10 @@ store.dispatch(
   }),
 );
 
-store.dispatch(addInstrument({ type: "triangle", name: "Triangle :O" }));
+store.dispatch(instrumentAdded({ type: "triangle", name: "Triangle :O" }));
 
 store.dispatch(
-  addNotesToInstrument({
+  instrumentNotesAdded({
     instrumentId: store.getState().instruments.ids[1],
     notes: [
       { time: "0:0:0", note: "C3", duration: "32n" },
@@ -47,12 +48,12 @@ store.dispatch(
   }),
 );
 
-initInstruments(selectAllInstruments(store.getState()));
+toneSync.initInstruments(selectAllInstruments(store.getState()));
+Tone.getTransport().bpm.value = selectBpm(store.getState());
 
 export type RootState = ReturnType<typeof store.getState>;
-
 export type AppDispatch = typeof store.dispatch;
-export const useAppDispatch: () => AppDispatch = useDispatch;
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+syncTransport(store.dispatch);
 
 export default store;
