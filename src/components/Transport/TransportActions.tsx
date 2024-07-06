@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { IconButton, Stack, Typography } from "@mui/joy";
 import { CiPause1, CiPlay1, CiStop1 } from "react-icons/ci";
 import {

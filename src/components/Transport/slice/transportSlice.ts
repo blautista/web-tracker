@@ -1,20 +1,21 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import * as Tone from "tone";
 import { PlaybackState } from "tone";
-import type { AppDispatch, RootState } from "../../../store/store.ts";
+import type { RootState } from "../../../store/store.ts";
 import { barsBeatsSixteenthsToTransportIndex } from "./utils.ts";
 import { createAppSlice } from "../../../store/createAppSlice.ts";
+import { createThunk } from "../../../store/createThunk.ts";
 
-type TransportState = {
+interface TransportState {
   state: PlaybackState;
   position: string;
   bpm: number;
-};
+}
 
 const initialState: TransportState = {
   state: "stopped",
   position: "0:0:0",
-  bpm: 120,
+  bpm: 110,
 };
 
 const transportSlice = createAppSlice({
@@ -29,17 +30,9 @@ const transportSlice = createAppSlice({
       state.position = action.payload;
     }),
 
-    bpmChanged: b.asyncThunk(
-      (bpm: number) => {
-        Tone.getTransport().bpm.value = bpm;
-        return bpm;
-      },
-      {
-        fulfilled(state, action) {
-          state.bpm = action.payload;
-        },
-      },
-    ),
+    bpmChanged: b.reducer((state, action: PayloadAction<number>) => {
+      state.bpm = action.payload;
+    }),
 
     stopTransport: b.asyncThunk<void, void>(() => {
       Tone.getTransport().stop();
@@ -62,7 +55,6 @@ export const {
   stopTransport,
   startTransport,
   pauseTransport,
-  bpmChanged,
 } = transportSlice.actions;
 
 export function selectTransportPlaybackState(state: RootState) {
@@ -83,10 +75,12 @@ export function selectBpm(state: RootState) {
 
 export default transportSlice;
 
-export function changeBpm(bpm: number) {
-  return (dispatch: AppDispatch) => {
-    Tone.getTransport().bpm.value = bpm;
+const { bpmChanged } = transportSlice.actions;
 
-    dispatch(bpmChanged(bpm));
-  };
-}
+const changeBpm = createThunk((bpm: number, { dispatch }) => {
+  Tone.getTransport().bpm.value = bpm;
+
+  dispatch(bpmChanged(bpm));
+});
+
+export { changeBpm };

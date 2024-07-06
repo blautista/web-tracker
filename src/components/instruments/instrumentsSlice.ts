@@ -5,8 +5,9 @@ import {
   nanoid,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import type { AppDispatch, RootState } from "../../store/store.ts";
 import * as Tone from "tone";
+import { createThunk } from "../../store/createThunk.ts";
+import type { RootState } from "../../store/store.ts";
 import { toneSync } from "./instrumentSync.ts";
 import { InstrumentType } from "./synthFactory.ts";
 
@@ -18,7 +19,7 @@ export type Notes = Note[];
 const instrumentsAdapter = createEntityAdapter<Instrument>();
 const notesAdapter = createEntityAdapter({ selectId: (note: Note) => note.time });
 
-export type Instrument = {
+export interface Instrument {
   id: string;
   name: string;
   type: InstrumentType;
@@ -27,7 +28,7 @@ export type Instrument = {
     mute: boolean;
   };
   notes: EntityState<Note, NoteTime>;
-};
+}
 
 const instrumentsSlice = createSlice({
   name: "instruments",
@@ -62,7 +63,7 @@ const instrumentsSlice = createSlice({
       },
     ),
 
-    instrumentMuteChange: b.reducer(
+    instrumentMuteChanged: b.reducer(
       (state, action: PayloadAction<{ instrumentId: string; muted: boolean }>) => {
         const { instrumentId, muted } = action.payload;
         const instrument = state.entities[instrumentId];
@@ -74,25 +75,6 @@ const instrumentsSlice = createSlice({
     ),
   }),
 });
-
-const { instrumentMuteChange } = instrumentsSlice.actions;
-
-export function unmuteInstrument(instrumentId: string) {
-  return (dispatch: AppDispatch, getState: () => RootState) => {
-    const volume = selectInstrumentVolume(getState(), instrumentId);
-    toneSync.setInstrumentVolume(instrumentId, volume);
-
-    dispatch(instrumentMuteChange({ instrumentId, muted: false }));
-  };
-}
-
-export function muteInstrument(instrumentId: string) {
-  return (dispatch: AppDispatch) => {
-    toneSync.muteInstrument(instrumentId);
-
-    dispatch(instrumentMuteChange({ instrumentId, muted: true }));
-  };
-}
 
 export const { instrumentAdded, instrumentNotesAdded } = instrumentsSlice.actions;
 
@@ -111,3 +93,20 @@ export function selectInstrumentPlayback(state: RootState, instrumentId: string)
 }
 
 export default instrumentsSlice;
+
+const { instrumentMuteChanged } = instrumentsSlice.actions;
+
+const unmuteInstrument = createThunk((instrumentId: string, { getState, dispatch }) => {
+  const volume = selectInstrumentVolume(getState(), instrumentId);
+  toneSync.setInstrumentVolume(instrumentId, volume);
+
+  dispatch(instrumentMuteChanged({ instrumentId, muted: false }));
+});
+
+const muteInstrument = createThunk((instrumentId: string, { dispatch }) => {
+  toneSync.muteInstrument(instrumentId);
+
+  dispatch(instrumentMuteChanged({ instrumentId, muted: true }));
+});
+
+export { muteInstrument, unmuteInstrument };
