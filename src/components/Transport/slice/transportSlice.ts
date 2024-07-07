@@ -33,29 +33,10 @@ const transportSlice = createAppSlice({
     bpmChanged: b.reducer((state, action: PayloadAction<number>) => {
       state.bpm = action.payload;
     }),
-
-    stopTransport: b.asyncThunk<void, void>(() => {
-      Tone.getTransport().stop();
-    }),
-
-    startTransport: b.asyncThunk<void, void>(async () => {
-      await Tone.start();
-      Tone.getTransport().start();
-    }),
-
-    pauseTransport: b.asyncThunk<void, void>(() => {
-      Tone.getTransport().pause();
-    }),
   }),
 });
 
-export const {
-  transportStateChanged,
-  transportPositionChanged,
-  stopTransport,
-  startTransport,
-  pauseTransport,
-} = transportSlice.actions;
+export const { transportStateChanged, transportPositionChanged } = transportSlice.actions;
 
 export function selectTransportPlaybackState(state: RootState) {
   return state.transport.state;
@@ -77,10 +58,22 @@ export default transportSlice;
 
 const { bpmChanged } = transportSlice.actions;
 
+const startTransport = createThunk(() => {
+  Tone.getTransport().start();
+});
+
+const pauseTransport = createThunk(() => {
+  Tone.getTransport().pause();
+});
+
+const stopTransport = createThunk(() => {
+  Tone.getTransport().stop();
+});
+
 const changeBpm = createThunk((bpm: number, { dispatch }) => {
   Tone.getTransport().bpm.value = bpm;
 
   dispatch(bpmChanged(bpm));
 });
 
-export { changeBpm };
+export { changeBpm, stopTransport, startTransport, pauseTransport };
