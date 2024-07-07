@@ -6,16 +6,34 @@ import { barsBeatsSixteenthsToTransportIndex } from "./utils.ts";
 import { createAppSlice } from "../../../store/createAppSlice.ts";
 import { createThunk } from "../../../store/createThunk.ts";
 
+interface EditorState {
+  editing: boolean;
+  cursor: {
+    x: number;
+    y: number;
+  };
+  part: number;
+}
+
 interface TransportState {
   state: PlaybackState;
   position: string;
   bpm: number;
+  editor: EditorState;
 }
 
 const initialState: TransportState = {
   state: "stopped",
   position: "0:0:0",
   bpm: 110,
+  editor: {
+    editing: false,
+    part: 0,
+    cursor: {
+      x: 0,
+      y: 0,
+    },
+  },
 };
 
 const transportSlice = createAppSlice({
@@ -58,16 +76,20 @@ export default transportSlice;
 
 const { bpmChanged } = transportSlice.actions;
 
-const startTransport = createThunk(() => {
+const startTransport = createThunk(async (_, { dispatch }) => {
+  await Tone.start();
   Tone.getTransport().start();
+  dispatch(transportStateChanged("started"));
 });
 
-const pauseTransport = createThunk(() => {
+const pauseTransport = createThunk((_, { dispatch }) => {
   Tone.getTransport().pause();
+  dispatch(transportStateChanged("paused"));
 });
 
-const stopTransport = createThunk(() => {
+const stopTransport = createThunk((_, { dispatch }) => {
   Tone.getTransport().stop();
+  dispatch(transportStateChanged("stopped"));
 });
 
 const changeBpm = createThunk((bpm: number, { dispatch }) => {
