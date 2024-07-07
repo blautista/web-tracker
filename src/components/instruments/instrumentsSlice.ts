@@ -13,7 +13,7 @@ import { InstrumentType } from "./synthFactory.ts";
 
 export type NoteTime = `${number}:${number}:${number}`;
 
-export type Note = { time: NoteTime; note: string; duration?: Tone.Unit.Time };
+export type Note = { time: NoteTime; note: string; duration?: Tone.Unit.Time; pattern: number };
 export type Notes = Note[];
 
 const instrumentsAdapter = createEntityAdapter<Instrument>();

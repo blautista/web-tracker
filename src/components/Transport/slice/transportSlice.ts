@@ -12,7 +12,7 @@ interface EditorState {
     x: number;
     y: number;
   };
-  part: number;
+  frame: number;
 }
 
 interface TransportState {
@@ -28,7 +28,7 @@ const initialState: TransportState = {
   bpm: 110,
   editor: {
     editing: false,
-    part: 0,
+    frame: 0,
     cursor: {
       x: 0,
       y: 0,
