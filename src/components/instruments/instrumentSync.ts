@@ -17,17 +17,19 @@ function initInstrument(instrument: Instrument) {
 
   const synth = createSynth(type);
 
+  const part = new Tone.Part((time, note) => {
+    synth.triggerAttackRelease(note.note, note.duration ?? "8n", time);
+  }, Object.values(notes.entities)).start(0);
+
+  part.loop = true;
+
+  instrumentMap.set(id, { synth, part });
+
   if (mute) {
     muteInstrument(id);
   } else {
     setInstrumentVolume(id, volume);
   }
-
-  const part = new Tone.Part((time, note) => {
-    synth.triggerAttackRelease(note.note, note.duration ?? "8n", time);
-  }, Object.values(notes.entities)).start(0);
-
-  instrumentMap.set(id, { synth, part });
 }
 
 /**

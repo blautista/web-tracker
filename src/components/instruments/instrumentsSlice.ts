@@ -26,6 +26,7 @@ export interface Instrument {
   playback: {
     volume: number;
     mute: boolean;
+    solo: boolean;
   };
   notes: EntityState<Note, NoteTime>;
 }
@@ -44,8 +45,9 @@ const instrumentsSlice = createSlice({
           name: `Instrument ${state.ids.length}`,
           ...action.payload,
           playback: {
-            volume: 0,
+            volume: -4,
             mute: false,
+            solo: false,
           },
           notes: notesAdapter.getInitialState(),
         });
@@ -73,6 +75,17 @@ const instrumentsSlice = createSlice({
         }
       },
     ),
+
+    instrumentSoloChanged: b.reducer(
+      (state, action: PayloadAction<{ instrumentId: string; soloed: boolean }>) => {
+        const { instrumentId, soloed } = action.payload;
+        const instrument = state.entities[instrumentId];
+
+        if (instrument) {
+          instrument.playback.solo = soloed;
+        }
+      },
+    ),
   }),
 });
 
@@ -92,9 +105,17 @@ export function selectInstrumentPlayback(state: RootState, instrumentId: string)
   return selectInstrumentById(state, instrumentId).playback;
 }
 
+function selectAllSoloedInstruments(state: RootState) {
+  return selectAllInstruments(state).filter((instrument) => instrument.playback.solo);
+}
+
+function selectAllNonSoloedInstruments(state: RootState) {
+  return selectAllInstruments(state).filter((instrument) => !instrument.playback.solo);
+}
+
 export default instrumentsSlice;
 
-const { instrumentMuteChanged } = instrumentsSlice.actions;
+const { instrumentMuteChanged, instrumentSoloChanged } = instrumentsSlice.actions;
 
 const unmuteInstrument = createThunk((instrumentId: string, { getState, dispatch }) => {
   const volume = selectInstrumentVolume(getState(), instrumentId);
@@ -109,4 +130,42 @@ const muteInstrument = createThunk((instrumentId: string, { dispatch }) => {
   dispatch(instrumentMuteChanged({ instrumentId, muted: true }));
 });
 
-export { muteInstrument, unmuteInstrument };
+const updateInstrumentVolumes = createThunk((_, { getState }) => {
+  const state = getState();
+
+  const soloedInstruments = selectAllSoloedInstruments(state);
+  const nonSoloedInstruments = selectAllNonSoloedInstruments(state);
+
+  const atLeastOneSoloedInstrument = soloedInstruments.length > 0;
+
+  if (!atLeastOneSoloedInstrument) {
+    nonSoloedInstruments.forEach((instrument) => {
+      if (instrument.playback.mute) {
+        toneSync.muteInstrument(instrument.id);
+      } else {
+        toneSync.setInstrumentVolume(instrument.id, instrument.playback.volume);
+      }
+    });
+    return;
+  }
+
+  soloedInstruments.forEach((instrument) => {
+    toneSync.setInstrumentVolume(instrument.id, instrument.playback.volume);
+  });
+
+  nonSoloedInstruments.forEach((instrument) => {
+    toneSync.muteInstrument(instrument.id);
+  });
+});
+
+const soloInstrument = createThunk((instrumentId: string, { dispatch }) => {
+  dispatch(instrumentSoloChanged({ instrumentId, soloed: true }));
+  dispatch(updateInstrumentVolumes());
+});
+
+const unsoloInstrument = createThunk((instrumentId: string, { dispatch }) => {
+  dispatch(instrumentSoloChanged({ instrumentId, soloed: false }));
+  dispatch(updateInstrumentVolumes());
+});
+
+export { muteInstrument, unmuteInstrument, soloInstrument, unsoloInstrument };
