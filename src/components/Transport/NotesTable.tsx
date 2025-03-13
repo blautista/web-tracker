@@ -1,10 +1,11 @@
-import TransportActions from "./TransportActions.tsx";
-import { selectTransportIndexPosition } from "./slice/transportSlice.ts";
 import { Stack, styled } from "@mui/joy";
-import { TransportRow } from "./TransportRow.tsx";
+import { KeyboardEvent } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
-import { useAppSelector } from "../../store/hooks.ts";
+import { selectTransportIndexPosition, stepTransportCursor } from "./slice/transportSlice.ts";
+import TransportActions from "./TransportActions.tsx";
+import { TransportRow } from "./TransportRow.tsx";
 
 const TableContainer = styled(Stack)(({ theme }) => ({
   color: theme.palette.text.primary,
@@ -35,12 +36,28 @@ function TransportHead() {
 }
 
 function NotesTable() {
+  const dispatch = useAppDispatch();
   const currentTransportIndex = useAppSelector((state) => selectTransportIndexPosition(state));
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    const keyToDirection = {
+      ArrowUp: "up",
+      ArrowDown: "down",
+      ArrowRight: "right",
+      ArrowLeft: "left",
+    } as const;
+
+    const direction = keyToDirection[e.key as keyof typeof keyToDirection];
+
+    if (direction) {
+      dispatch(stepTransportCursor(direction));
+    }
+  };
 
   return (
     <Stack>
       <TransportActions />
-      <TableContainer alignItems="start">
+      <TableContainer alignItems="start" tabIndex={0} onKeyDown={handleKeydown}>
         <TransportHead />
         {indexValues.map((_, index) => {
           return (

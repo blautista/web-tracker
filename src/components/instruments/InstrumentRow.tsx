@@ -1,4 +1,4 @@
-import { NoteCell } from "./NoteCell.tsx";
+import { EditorCell, NoteCell } from "./NoteCell.tsx";
 import { memo } from "react";
 import { NoteTime } from "./instrumentsSlice.ts";
 import { Stack } from "@mui/joy";
@@ -18,7 +18,12 @@ export const InstrumentRow = memo(function InstrumentRow({
 
   return (
     <Stack direction="row" width={200} borderRight={1} borderBottom={1}>
-      <NoteCell instrumentId={instrumentId} noteId={pos} />
+      <EditorCell rowIndex={index} columnId="note" instrumentId={instrumentId}>
+        <NoteCell instrumentId={instrumentId} noteId={pos} />
+      </EditorCell>
+      <EditorCell rowIndex={index} columnId="volume" instrumentId={instrumentId}>
+        <NoteCell instrumentId={instrumentId} noteId={pos} />
+      </EditorCell>
     </Stack>
   );
 });

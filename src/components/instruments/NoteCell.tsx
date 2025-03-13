@@ -1,10 +1,49 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { TableCell } from "../Transport/StyledTableCell.tsx";
 import { NoteTime } from "./instrumentsSlice.ts";
 import { Typography } from "@mui/joy";
-import { useAppSelector } from "../../store/hooks.ts";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
+import {
+  editorCursorChanged,
+  InstrumentColumn,
+  selectEditorCursor,
+} from "../Transport/slice/transportSlice.ts";
+import { shallowEqual } from "react-redux";
 
-type NoteCellProps = { instrumentId: string; noteId: NoteTime };
+interface EditorCellProps extends PropsWithChildren {
+  rowIndex: number;
+  columnId: InstrumentColumn;
+  instrumentId: string;
+}
+
+export const EditorCell = React.memo(function EditorCell(props: EditorCellProps) {
+  const dispatch = useAppDispatch();
+  const { children, ...cellCursorState } = props;
+
+  const isCursorOnCell = useAppSelector((state) => {
+    const cursorState = selectEditorCursor(state) ?? {};
+
+    return shallowEqual(cursorState, cellCursorState);
+  });
+
+  function handleClick() {
+    dispatch(editorCursorChanged(cellCursorState));
+  }
+
+  return (
+    <TableCell
+      style={{ background: isCursorOnCell ? "lightgray" : "white", flex: 1 }}
+      onClick={handleClick}
+    >
+      {children}
+    </TableCell>
+  );
+});
+
+interface NoteCellProps {
+  instrumentId: string;
+  noteId: NoteTime;
+}
 
 export const NoteCell = React.memo(function NoteCell(props: NoteCellProps) {
   const { instrumentId, noteId } = props;
@@ -15,9 +54,5 @@ export const NoteCell = React.memo(function NoteCell(props: NoteCellProps) {
 
   const children = note ? note.note.split("").join("-") : "---";
 
-  return (
-    <TableCell>
-      <Typography level="body-xs">{children}</Typography>
-    </TableCell>
-  );
+  return <Typography level="body-xs">{children}</Typography>;
 });
