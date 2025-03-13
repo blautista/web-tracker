@@ -1,7 +1,7 @@
-import { EditorCell, NoteCell } from "./NoteCell.tsx";
-import { memo } from "react";
-import { NoteTime } from "./instrumentsSlice.ts";
 import { Stack } from "@mui/joy";
+import { memo } from "react";
+import { EditorCell, NoteCell } from "./NoteCell.tsx";
+import { NoteTime } from "./instrumentsSlice.ts";
 
 function indexToTransportPosition(i: number): NoteTime {
   return `${Math.floor(i / 16)}:${Math.floor(i / 4) % 4}:${i % 4}`;

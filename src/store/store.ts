@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
-import instrumentsSlice from "../components/instruments/instrumentsSlice.ts";
 import { syncTransport } from "../components/Transport/slice/sync.ts";
 import transportSlice from "../components/Transport/slice/transportSlice.ts";
+import instrumentsSlice from "../components/instruments/instrumentsSlice.ts";
 import { makeFakeInitialState } from "./fakeInitialState.ts";
 
 const store = configureStore({

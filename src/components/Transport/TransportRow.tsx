@@ -1,9 +1,9 @@
+import { Stack, styled } from "@mui/joy";
+import { memo } from "react";
+import { useAppSelector } from "../../store/hooks.ts";
+import { InstrumentRow } from "../instruments/InstrumentRow.tsx";
 import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import { IndexCell } from "./IndexCell.tsx";
-import { memo } from "react";
-import { Stack, styled } from "@mui/joy";
-import { InstrumentRow } from "../instruments/InstrumentRow.tsx";
-import { useAppSelector } from "../../store/hooks.ts";
 
 const TableRow = styled(Stack)({
   height: 20,

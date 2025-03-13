@@ -4,8 +4,8 @@ import { PlaybackState } from "tone";
 import { createAppSlice } from "../../../store/createAppSlice.ts";
 import { createThunk } from "../../../store/createThunk.ts";
 import type { RootState } from "../../../store/store.ts";
-import { barsBeatsSixteenthsToTransportIndex } from "./utils.ts";
 import { Instrument, selectAllInstruments } from "../../instruments/instrumentsSlice.ts";
+import { barsBeatsSixteenthsToTransportIndex } from "./utils.ts";
 
 export type InstrumentColumn = "note" | "volume";
 

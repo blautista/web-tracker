@@ -1,6 +1,7 @@
-import { memo } from "react";
 import { IconButton, Stack, Typography } from "@mui/joy";
+import { memo } from "react";
 import { CiPause1, CiPlay1, CiStop1 } from "react-icons/ci";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 import {
   pauseTransport,
   selectBpm,
@@ -8,7 +9,6 @@ import {
   startTransport,
   stopTransport,
 } from "./slice/transportSlice.ts";
-import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 
 const TransportActions = memo(function TransportActions() {
   const dispatch = useAppDispatch();

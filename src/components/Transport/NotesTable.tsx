@@ -1,11 +1,11 @@
 import { Stack, styled } from "@mui/joy";
 import { KeyboardEvent } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
-import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
-import { selectTransportIndexPosition, stepTransportCursor } from "./slice/transportSlice.ts";
+import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import TransportActions from "./TransportActions.tsx";
 import { TransportRow } from "./TransportRow.tsx";
+import { selectTransportIndexPosition, stepTransportCursor } from "./slice/transportSlice.ts";
 
 const TableContainer = styled(Stack)(({ theme }) => ({
   color: theme.palette.text.primary,

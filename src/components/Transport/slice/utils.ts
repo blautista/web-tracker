@@ -19,11 +19,11 @@ export function barsBeatsSixteenthsToTransportIndex(time: string): number {
   let sum = Number(bar) * 4 * 4;
 
   if (beats) {
-    sum += parseInt(beats) * 4;
+    sum += Number.parseInt(beats) * 4;
   }
 
   if (sixteenths) {
-    sum += parseInt(sixteenths);
+    sum += Number.parseInt(sixteenths);
   }
 
   return sum - 1;

@@ -1,6 +1,6 @@
+import * as Tone from "tone";
 import { AppDispatch } from "../../../store/store";
 import { transportPositionChanged } from "./transportSlice";
-import * as Tone from "tone";
 import { getQuantizedTransportPosition } from "./utils";
 
 function syncPosition(dispatch: AppDispatch) {

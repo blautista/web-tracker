@@ -1,5 +1,5 @@
-import { Instrument, Note } from "./instrumentsSlice.ts";
 import * as Tone from "tone";
+import { Instrument, Note } from "./instrumentsSlice.ts";
 import { AnySynth, createSynth } from "./synthFactory.ts";
 
 const instrumentMap = new Map<

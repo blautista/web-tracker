@@ -1,12 +1,12 @@
+import * as Tone from "tone";
+import { selectBpm } from "../components/Transport/slice/transportSlice";
+import { toneSync } from "../components/instruments/instrumentSync";
 import {
   instrumentAdded,
   instrumentNotesAdded,
   selectAllInstruments,
 } from "../components/instruments/instrumentsSlice";
-import { toneSync } from "../components/instruments/instrumentSync";
-import { selectBpm } from "../components/Transport/slice/transportSlice";
 import type { AppDispatch, RootState } from "./store";
-import * as Tone from "tone";
 
 export function makeFakeInitialState(dispatch: AppDispatch, getState: () => RootState) {
   dispatch(instrumentAdded({ type: "square", name: "Square!" }));

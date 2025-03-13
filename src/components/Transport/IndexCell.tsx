@@ -1,7 +1,7 @@
-import React from "react";
-import { TableCell } from "./StyledTableCell.tsx";
 import styled from "@emotion/styled";
 import { Typography } from "@mui/joy";
+import React from "react";
+import { TableCell } from "./StyledTableCell.tsx";
 
 const StyledIndexCell = styled(TableCell)({
   letterSpacing: "initial",

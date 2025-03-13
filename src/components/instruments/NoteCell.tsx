@@ -1,14 +1,14 @@
-import React, { PropsWithChildren } from "react";
-import { TableCell } from "../Transport/StyledTableCell.tsx";
-import { NoteTime } from "./instrumentsSlice.ts";
 import { Typography } from "@mui/joy";
+import React, { PropsWithChildren } from "react";
+import { shallowEqual } from "react-redux";
 import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
+import { TableCell } from "../Transport/StyledTableCell.tsx";
 import {
-  editorCursorChanged,
   InstrumentColumn,
+  editorCursorChanged,
   selectEditorCursor,
 } from "../Transport/slice/transportSlice.ts";
-import { shallowEqual } from "react-redux";
+import { NoteTime } from "./instrumentsSlice.ts";
 
 interface EditorCellProps extends PropsWithChildren {
   rowIndex: number;

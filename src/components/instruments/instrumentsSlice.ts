@@ -1,9 +1,9 @@
 import {
+  EntityState,
+  PayloadAction,
   createEntityAdapter,
   createSlice,
-  EntityState,
   nanoid,
-  PayloadAction,
 } from "@reduxjs/toolkit";
 import * as Tone from "tone";
 import { createThunk } from "../../store/createThunk.ts";
@@ -13,11 +13,18 @@ import { InstrumentType } from "./synthFactory.ts";
 
 export type NoteTime = `${number}:${number}:${number}`;
 
-export type Note = { time: NoteTime; note: string; duration?: Tone.Unit.Time; pattern: number };
+export type Note = {
+  time: NoteTime;
+  note: string;
+  duration?: Tone.Unit.Time;
+  pattern: number;
+};
 export type Notes = Note[];
 
 const instrumentsAdapter = createEntityAdapter<Instrument>();
-const notesAdapter = createEntityAdapter({ selectId: (note: Note) => note.time });
+const notesAdapter = createEntityAdapter({
+  selectId: (note: Note) => note.time,
+});
 
 export interface Instrument {
   id: string;
@@ -139,23 +146,24 @@ const updateInstrumentVolumes = createThunk((_, { getState }) => {
   const atLeastOneSoloedInstrument = soloedInstruments.length > 0;
 
   if (!atLeastOneSoloedInstrument) {
-    nonSoloedInstruments.forEach((instrument) => {
+    for (const instrument of nonSoloedInstruments) {
       if (instrument.playback.mute) {
         toneSync.muteInstrument(instrument.id);
       } else {
         toneSync.setInstrumentVolume(instrument.id, instrument.playback.volume);
       }
-    });
+    }
+
     return;
   }
 
-  soloedInstruments.forEach((instrument) => {
+  for (const instrument of soloedInstruments) {
     toneSync.setInstrumentVolume(instrument.id, instrument.playback.volume);
-  });
+  }
 
-  nonSoloedInstruments.forEach((instrument) => {
+  for (const instrument of nonSoloedInstruments) {
     toneSync.muteInstrument(instrument.id);
-  });
+  }
 });
 
 const soloInstrument = createThunk((instrumentId: string, { dispatch }) => {

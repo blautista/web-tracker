@@ -1,5 +1,6 @@
 import { Button, Stack, Typography } from "@mui/joy";
 import { memo } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 import {
   muteInstrument,
   selectInstrumentById,
@@ -7,7 +8,6 @@ import {
   unmuteInstrument,
   unsoloInstrument,
 } from "./instrumentsSlice.ts";
-import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
 
 type InstrumentTableHeadProps = {
   instrumentId: string;
