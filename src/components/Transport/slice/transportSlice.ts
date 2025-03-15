@@ -17,7 +17,6 @@ type CursorState = {
 
 interface EditorState {
   editing: boolean;
-  cursor: CursorState;
   frame: number;
 }
 
@@ -26,6 +25,7 @@ interface TransportState {
   position: string;
   bpm: number;
   rowsPerFrame: number;
+  cursor: CursorState;
   editor: EditorState;
   visibleColumns: InstrumentColumn[];
 }
@@ -35,10 +35,10 @@ const initialState: TransportState = {
   position: "0:0:0",
   bpm: 110,
   rowsPerFrame: 64,
+  cursor: null,
   editor: {
     editing: false,
     frame: 0,
-    cursor: null,
   },
   visibleColumns: ["note", "volume"],
 };
@@ -76,7 +76,11 @@ const transportSlice = createAppSlice({
     },
 
     editorCursorChanged(state, action: PayloadAction<CursorState>) {
-      state.editor.cursor = action.payload;
+      state.cursor = action.payload;
+    },
+
+    editingToggled(state) {
+      state.editor.editing = !state.editor.editing;
     },
 
     editorCursorMoved(
@@ -85,7 +89,7 @@ const transportSlice = createAppSlice({
         payload: { direction, instruments },
       }: PA<{ direction: Direction; instruments: Instrument[] }>,
     ) {
-      const cursor = state.editor.cursor;
+      const cursor = state.cursor;
       const { visibleColumns } = state;
 
       if (!cursor) return;
@@ -138,6 +142,7 @@ export const {
   transportPositionChanged,
   editorCursorChanged,
   editorCursorMoved,
+  editingToggled,
 } = transportSlice.actions;
 
 export function selectTransportPlaybackState(state: RootState) {
@@ -152,13 +157,13 @@ export function selectTransportIndexPosition(state: RootState) {
   return barsBeatsSixteenthsToTransportIndex(state.transport.position) + 1;
 }
 
-export function selectBpm(state: RootState) {
-  return state.transport.bpm;
-}
+export const selectBpm = (state: RootState) => state.transport.bpm;
 
-export function selectEditorCursor(state: RootState) {
-  return state.transport.editor.cursor;
-}
+export const selectEditorCursor = (state: RootState) => state.transport.cursor;
+
+export const selectIsEditing = (state: RootState) => state.transport.editor.editing;
+
+export const selectEditorSteppedIndex = (state: RootState) => state.transport.cursor?.rowIndex;
 
 export default transportSlice;
 

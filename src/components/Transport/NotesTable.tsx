@@ -5,7 +5,11 @@ import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
 import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import TransportActions from "./TransportActions.tsx";
 import { TransportRow } from "./TransportRow.tsx";
-import { selectTransportIndexPosition, stepTransportCursor } from "./slice/transportSlice.ts";
+import {
+  editingToggled,
+  selectTransportIndexPosition,
+  stepTransportCursor,
+} from "./slice/transportSlice.ts";
 
 const TableContainer = styled(Stack)(({ theme }) => ({
   color: theme.palette.text.primary,
@@ -40,6 +44,12 @@ function NotesTable() {
   const currentTransportIndex = useAppSelector((state) => selectTransportIndexPosition(state));
 
   const handleKeydown = (e: KeyboardEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (e.code === "Space") {
+      dispatch(editingToggled());
+    }
+
     const keyToDirection = {
       ArrowUp: "up",
       ArrowDown: "down",
