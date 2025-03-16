@@ -25,4 +25,9 @@ dist-ssr
 
 # Yarn
 .pnp.*
-.yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
