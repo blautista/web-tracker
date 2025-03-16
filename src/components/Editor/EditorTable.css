@@ -1,7 +1,6 @@
 .editorTable {
   border-collapse: collapse;
   table-layout: fixed;
-  /* width: 800px; */
   background: white;
   user-select: none;
   width: min-content;

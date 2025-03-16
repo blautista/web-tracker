@@ -8,8 +8,8 @@ import {
 } from "../Transport/slice/transportSlice.ts";
 import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
 import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
-import { EditorRow } from "./Row/EditorRow.tsx";
 import "./EditorTable.css";
+import { EditorRow } from "./Row/EditorRow.tsx";
 
 const indexValues = Array(64)
   .fill(0)
