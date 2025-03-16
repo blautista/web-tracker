@@ -27,11 +27,17 @@
         "useImportType": "off",
         "noNonNullAssertion": "off"
       },
+      "correctness": {
+        "noUnusedVariables": "warn",
+        "noUnusedImports": "warn"
+      },
       "suspicious": {
         "noArrayIndexKey": "off"
       },
       "a11y": {
-        "useSemanticElements": "off"
+        "useSemanticElements": "off",
+        "noNoninteractiveTabindex": "off",
+        "useKeyWithClickEvents": "off"
       }
     }
   },

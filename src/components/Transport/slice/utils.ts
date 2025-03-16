@@ -1,4 +1,5 @@
 import * as Tone from "tone";
+import { CursorState, InstrumentColumn } from "./transportSlice";
 
 export function getQuantizedTransportPosition(time: number) {
   const offset = Tone.Time().toSeconds() - time;
@@ -27,4 +28,17 @@ export function barsBeatsSixteenthsToTransportIndex(time: string): number {
   }
 
   return sum - 1;
+}
+
+export const makeCellId = ({ instrumentId, columnId, rowIndex }: CursorState) =>
+  `${instrumentId}-${rowIndex}-${columnId}`;
+
+export function decodeCellId(cellId: string): CursorState {
+  const [instrumentId, rowIndex, columnId] = cellId.split("-");
+
+  return {
+    instrumentId,
+    rowIndex: Number.parseInt(rowIndex),
+    columnId: columnId as InstrumentColumn,
+  };
 }

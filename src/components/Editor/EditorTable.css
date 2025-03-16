@@ -1,0 +1,47 @@
+.editorTable {
+  border-collapse: collapse;
+  table-layout: fixed;
+  /* width: 800px; */
+  background: white;
+  user-select: none;
+  width: min-content;
+  border: 1px solid black;
+}
+
+.editorRow {
+  background-color: white;
+
+  &.selected {
+    background-color: #ddd;
+  }
+
+  &.playing {
+    background-color: lightgray;
+  }
+}
+
+.editorCell {
+  box-sizing: content-box;
+  padding: 4px;
+  background-color: inherit;
+  width: 3ch;
+
+  &.selected {
+    background: #aaaaaa;
+  }
+}
+
+.editorCell.index {
+  width: 30px;
+  font-weight: bold;
+  border-right: 1px solid black;
+}
+
+.editorCellContainer {
+  height: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 3ch;
+}

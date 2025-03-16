@@ -5,15 +5,15 @@ import { createAppSlice } from "../../../store/createAppSlice.ts";
 import { createThunk } from "../../../store/createThunk.ts";
 import type { RootState } from "../../../store/store.ts";
 import { Instrument, selectAllInstruments } from "../../instruments/instrumentsSlice.ts";
-import { barsBeatsSixteenthsToTransportIndex } from "./utils.ts";
+import { barsBeatsSixteenthsToTransportIndex, makeCellId } from "./utils.ts";
 
 export type InstrumentColumn = "note" | "volume";
 
-type CursorState = {
+export interface CursorState {
   rowIndex: number;
   columnId: InstrumentColumn;
   instrumentId: string;
-} | null;
+}
 
 interface EditorState {
   editing: boolean;
@@ -25,7 +25,7 @@ interface TransportState {
   position: string;
   bpm: number;
   rowsPerFrame: number;
-  cursor: CursorState;
+  cursor: CursorState | null;
   editor: EditorState;
   visibleColumns: InstrumentColumn[];
 }
@@ -164,6 +164,9 @@ export const selectEditorCursor = (state: RootState) => state.transport.cursor;
 export const selectIsEditing = (state: RootState) => state.transport.editor.editing;
 
 export const selectEditorSteppedIndex = (state: RootState) => state.transport.cursor?.rowIndex;
+
+export const selectIsCellSelected = (state: RootState, cellId: string) =>
+  state.transport.cursor ? makeCellId(state.transport.cursor) === cellId : false;
 
 export default transportSlice;
 

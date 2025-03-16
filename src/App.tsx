@@ -1,11 +1,16 @@
 import { Provider } from "react-redux";
-import NotesTable from "./components/Transport/NotesTable.tsx";
+import EditorTable from "./components/Editor/EditorTable.tsx";
 import store from "./store/store.ts";
+import { Stack } from "@mui/joy";
+import TransportActions from "./components/Transport/TransportActions.tsx";
 
 function App() {
   return (
     <Provider store={store}>
-      <NotesTable />
+      <Stack>
+        <TransportActions />
+        <EditorTable />
+      </Stack>
     </Provider>
   );
 }
