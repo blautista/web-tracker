@@ -1,20 +1,14 @@
-import { memo } from "react";
-import { NoteTime } from "../../instruments/instrumentsSlice.ts";
 import { EditorNoteCell } from "../Cells/EditorNoteCell.tsx";
 import { EditorCell } from "../Cells/EditorCell.tsx";
+import { transportIndexToBarsBeatsSixteenths } from "../../Transport/slice/utils.ts";
 
-function indexToTransportPosition(i: number): NoteTime {
-  return `${Math.floor(i / 16)}:${Math.floor(i / 4) % 4}:${i % 4}`;
-}
-
-export const InstrumentRow = memo(function InstrumentRow({
-  instrumentId,
-  index,
-}: {
+interface InstrumentRowProps {
   instrumentId: string;
   index: number;
-}) {
-  const pos = indexToTransportPosition(index);
+}
+
+export function InstrumentRow({ instrumentId, index }: InstrumentRowProps) {
+  const pos = transportIndexToBarsBeatsSixteenths(index);
 
   return (
     <>
@@ -26,4 +20,4 @@ export const InstrumentRow = memo(function InstrumentRow({
       </EditorCell>
     </>
   );
-});
+}

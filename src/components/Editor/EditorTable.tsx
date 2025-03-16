@@ -1,37 +1,16 @@
-import { Stack } from "@mui/joy";
 import { KeyboardEvent } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
+import { useAppDispatch } from "../../store/hooks.ts";
 import {
   addNoteInCursor,
   editingToggled,
   stepTransportCursor,
 } from "../Transport/slice/transportSlice.ts";
-import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
-import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import "./EditorTable.css";
 import { EditorRow } from "./Row/EditorRow.tsx";
 
 const indexValues = Array(64)
   .fill(0)
   .map((_, i) => i);
-
-function TransportHead() {
-  const allInstruments = useAppSelector(selectInstrumentIds);
-
-  return (
-    <Stack
-      direction="row"
-      ml="30px"
-      sx={(theme) => ({
-        background: theme.palette.background.body,
-      })}
-    >
-      {allInstruments.map((id) => (
-        <InstrumentTableHead key={id} instrumentId={id} />
-      ))}
-    </Stack>
-  );
-}
 
 const keyboardCodeNoteMap = {
   KeyZ: "C",
