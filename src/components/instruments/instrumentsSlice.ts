@@ -11,10 +11,9 @@ import type { RootState } from "../../store/store.ts";
 import { toneSync } from "./instrumentSync.ts";
 import { InstrumentType } from "./synthFactory.ts";
 
-export type NoteTime = `${number}:${number}:${number}`;
-
 export type Note = {
-  time: NoteTime;
+  // {bars}:{beats}:{sixteenths}
+  time: string;
   note: string;
   duration?: Tone.Unit.Time;
   pattern: number;
@@ -35,19 +34,19 @@ export interface Instrument {
     mute: boolean;
     solo: boolean;
   };
-  notes: EntityState<Note, NoteTime>;
+  notes: EntityState<Note, string>;
 }
 
 const instrumentsSlice = createSlice({
   name: "instruments",
   initialState: instrumentsAdapter.getInitialState(),
-  reducers: (b) => ({
-    instrumentAdded: b.preparedReducer(
-      (obj: { type: InstrumentType; name?: string }) => {
+  reducers: {
+    instrumentAdded: {
+      prepare(obj: { type: InstrumentType; name?: string }) {
         const id = nanoid();
         return { payload: { ...obj, id } };
       },
-      (state, action) => {
+      reducer(state, action: PayloadAction<{ type: InstrumentType; name?: string; id: string }>) {
         instrumentsAdapter.addOne(state, {
           name: `Instrument ${state.ids.length}`,
           ...action.payload,
@@ -59,44 +58,48 @@ const instrumentsSlice = createSlice({
           notes: notesAdapter.getInitialState(),
         });
       },
-    ),
+    },
 
-    instrumentNotesAdded: b.reducer(
-      (state, action: PayloadAction<{ instrumentId: string; notes: Notes }>) => {
-        const { instrumentId: id, notes } = action.payload;
-        const instrument = state.entities[id];
+    instrumentNotesAdded(state, action: PayloadAction<{ instrumentId: string; notes: Notes }>) {
+      const { instrumentId: id, notes } = action.payload;
+      const instrument = state.entities[id];
 
-        if (instrument) {
-          notesAdapter.setMany(instrument.notes, notes);
-        }
-      },
-    ),
+      if (instrument) {
+        notesAdapter.setMany(instrument.notes, notes);
+      }
+    },
 
-    instrumentMuteChanged: b.reducer(
-      (state, action: PayloadAction<{ instrumentId: string; muted: boolean }>) => {
-        const { instrumentId, muted } = action.payload;
-        const instrument = state.entities[instrumentId];
+    instrumentMuteChanged(state, action: PayloadAction<{ instrumentId: string; muted: boolean }>) {
+      const { instrumentId, muted } = action.payload;
+      const instrument = state.entities[instrumentId];
 
-        if (instrument) {
-          instrument.playback.mute = muted;
-        }
-      },
-    ),
+      if (instrument) {
+        instrument.playback.mute = muted;
+      }
+    },
 
-    instrumentSoloChanged: b.reducer(
-      (state, action: PayloadAction<{ instrumentId: string; soloed: boolean }>) => {
-        const { instrumentId, soloed } = action.payload;
-        const instrument = state.entities[instrumentId];
+    instrumentSoloChanged(state, action: PayloadAction<{ instrumentId: string; soloed: boolean }>) {
+      const { instrumentId, soloed } = action.payload;
+      const instrument = state.entities[instrumentId];
 
-        if (instrument) {
-          instrument.playback.solo = soloed;
-        }
-      },
-    ),
-  }),
+      if (instrument) {
+        instrument.playback.solo = soloed;
+      }
+    },
+
+    noteAddedByCursor(state, action: PayloadAction<{ instrumentId: string; note: Note }>) {
+      const { instrumentId, note } = action.payload;
+      const instrument = state.entities[instrumentId];
+
+      if (instrument) {
+        notesAdapter.setOne(instrument.notes, note);
+      }
+    },
+  },
 });
 
-export const { instrumentAdded, instrumentNotesAdded } = instrumentsSlice.actions;
+export const { instrumentAdded, instrumentNotesAdded, noteAddedByCursor } =
+  instrumentsSlice.actions;
 
 export const {
   selectIds: selectInstrumentIds,

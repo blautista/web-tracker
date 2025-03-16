@@ -1,7 +1,11 @@
 import { Stack } from "@mui/joy";
 import { KeyboardEvent } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
-import { editingToggled, stepTransportCursor } from "../Transport/slice/transportSlice.ts";
+import {
+  addNoteInCursor,
+  editingToggled,
+  stepTransportCursor,
+} from "../Transport/slice/transportSlice.ts";
 import InstrumentTableHead from "../instruments/InstrumentTableHead.tsx";
 import { selectInstrumentIds } from "../instruments/instrumentsSlice.ts";
 import { EditorRow } from "./Row/EditorRow.tsx";
@@ -27,6 +31,25 @@ function TransportHead() {
       ))}
     </Stack>
   );
+}
+
+const keyboardCodeNoteMap = {
+  KeyZ: "C",
+  KeyS: "C#",
+  KeyX: "D",
+  KeyD: "D#",
+  KeyC: "E",
+  KeyV: "F",
+  KeyG: "F#",
+  KeyB: "G",
+  KeyH: "G#",
+  KeyN: "A",
+  KeyJ: "A#",
+  KeyM: "B",
+};
+
+function keyboardCodeToNote(code: string): string | undefined {
+  return keyboardCodeNoteMap[code as keyof typeof keyboardCodeNoteMap];
 }
 
 function useEditorKeydown() {
@@ -56,6 +79,12 @@ function useEditorKeydown() {
         dispatch(stepTransportCursor(direction));
         break;
       }
+    }
+
+    const note = keyboardCodeToNote(e.code);
+
+    if (note) {
+      dispatch(addNoteInCursor({ note }));
     }
   };
 }

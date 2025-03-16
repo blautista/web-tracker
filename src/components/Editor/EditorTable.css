@@ -18,6 +18,10 @@
   &.playing {
     background-color: lightgray;
   }
+
+  &.editing {
+    background-color: tomato;
+  }
 }
 
 .editorCell {

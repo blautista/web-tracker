@@ -4,8 +4,17 @@ import { PlaybackState } from "tone";
 import { createAppSlice } from "../../../store/createAppSlice.ts";
 import { createThunk } from "../../../store/createThunk.ts";
 import type { RootState } from "../../../store/store.ts";
-import { Instrument, selectAllInstruments } from "../../instruments/instrumentsSlice.ts";
-import { barsBeatsSixteenthsToTransportIndex, makeCellId } from "./utils.ts";
+import {
+  Instrument,
+  instrumentNotesAdded,
+  noteAddedByCursor,
+  selectAllInstruments,
+} from "../../instruments/instrumentsSlice.ts";
+import {
+  barsBeatsSixteenthsToTransportIndex,
+  makeCellId,
+  transportIndexToBarsBeatsSixteenths,
+} from "./utils.ts";
 
 export type InstrumentColumn = "note" | "volume";
 
@@ -135,6 +144,13 @@ const transportSlice = createAppSlice({
       }
     },
   },
+  extraReducers(b) {
+    b.addCase(noteAddedByCursor, (state, action) => {
+      if (state.cursor) {
+        state.cursor.rowIndex++;
+      }
+    });
+  },
 });
 
 export const {
@@ -202,4 +218,33 @@ const stepTransportCursor = createThunk(
   },
 );
 
-export { changeBpm, pauseTransport, startTransport, stopTransport, stepTransportCursor };
+const addNoteInCursor = createThunk(({ note }: { note: string }, { getState, dispatch }) => {
+  const state = getState();
+  const isEditing = selectIsEditing(state);
+
+  if (!isEditing) return;
+
+  const cursor = selectEditorCursor(state);
+
+  if (cursor) {
+    dispatch(
+      noteAddedByCursor({
+        instrumentId: cursor.instrumentId,
+        note: {
+          note: `${note}4`,
+          time: transportIndexToBarsBeatsSixteenths(cursor.rowIndex),
+          pattern: 0,
+        },
+      }),
+    );
+  }
+});
+
+export {
+  changeBpm,
+  pauseTransport,
+  startTransport,
+  stopTransport,
+  stepTransportCursor,
+  addNoteInCursor,
+};

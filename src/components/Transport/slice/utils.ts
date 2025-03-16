@@ -27,7 +27,16 @@ export function barsBeatsSixteenthsToTransportIndex(time: string): number {
     sum += Number.parseInt(sixteenths);
   }
 
-  return sum - 1;
+  return sum;
+}
+
+export function transportIndexToBarsBeatsSixteenths(index: number): string {
+  const offsetIndex = index;
+  const sixteenths = offsetIndex % 4;
+  const beats = Math.floor(offsetIndex / 4) % 4;
+  const bars = Math.floor(offsetIndex / 16);
+
+  return `${bars}:${beats}:${sixteenths}`;
 }
 
 export const makeCellId = ({ instrumentId, columnId, rowIndex }: CursorState) =>
